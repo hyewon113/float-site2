@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>마우스를 피하는 이미지와 영상</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    .float-media {
+      position: absolute;
+      object-fit: cover;
+      border-radius: 6px;
+      pointer-events: none;
+      transition: transform 0.1s ease;
+    }
+    img.float-media {
+      width: 200px;
+    }
+    video.float-media {
+      width: 400px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 이미지 15개 -->
+  <img src="image1.jpg" class="float-media" />
+  <img src="image2.jpg" class="float-media" />
+  <img src="image3.jpg" class="float-media" />
+  <img src="image4.jpg" class="float-media" />
+  <img src="image5.jpg" class="float-media" />
+  <img src="image6.jpg" class="float-media" />
+  <img src="image7.jpg" class="float-media" />
+  <img src="image8.jpg" class="float-media" />
+  <img src="image9.jpg" class="float-media" />
+  <img src="image10.jpg" class="float-media" />
+  <img src="image11.jpg" class="float-media" />
+  <img src="image12.jpg" class="float-media" />
+  <img src="image13.jpg" class="float-media" />
+  <img src="image14.jpg" class="float-media" />
+  <img src="image15.jpg" class="float-media" />
+  <img src="image16.jpg" class="float-media" />
+  <img src="image17.jpg" class="float-media" />
+  <img src="image18.jpg" class="float-media" />
+  <img src="image19.jpg" class="float-media" />
+  <img src="image20.jpg" class="float-media" />
+
+  <!-- 영상 2개 -->
+  <video src="video1.mp4" class="float-media" autoplay loop muted></video>
+  <video src="video2.mp4" class="float-media" autoplay loop muted></video>
+  <video src="video3.mp4" class="float-media" autoplay loop muted></video>
+
+  <script>
+    const mediaElements = document.querySelectorAll('.float-media');
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const floatObjects = [];
+
+    let mouseX = -9999, mouseY = -9999;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    // 초기 위치 및 속도 설정
+    mediaElements.forEach(media => {
+      const isVideo = media.tagName === 'VIDEO';
+      const size = isVideo ? 400 : 200;
+
+      const x = Math.random() * (windowWidth - size);
+      const y = Math.random() * (windowHeight - size);
+      const vx = (Math.random() - 0.5) * 1.5;
+      const vy = (Math.random() - 0.5) * 1.5;
+
+      media.style.left = x + 'px';
+      media.style.top = y + 'px';
+
+      floatObjects.push({ el: media, x, y, vx, vy, size, isVideo });
+    });
+
+    // 🎧 마우스 거리 따라 볼륨 조절 + 자동 재생
+    function updateAudioByDistance() {
+      const maxDistance = 400;
+      floatObjects.forEach(obj => {
+        if (!obj.isVideo) return;
+
+        const centerX = obj.x + obj.size / 2;
+        const centerY = obj.y + obj.size / 2;
+        const dx = centerX - mouseX;
+        const dy = centerY - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const video = obj.el;
+        const volume = Math.max(0, 1 - (dist / maxDistance));
+
+        video.volume = volume;
+
+        if (volume > 0) {
+          video.muted = false;
+          if (video.paused) video.play(); // 소리 때문에 멈춘 영상 다시 재생
+        } else {
+          video.muted = true;
+        }
+      });
+    }
+
+    // 🌀 떠다니고 회피하는 애니메이션
+    function animate() {
+      floatObjects.forEach(obj => {
+        const dx = obj.x + obj.size / 2 - mouseX;
+        const dy = obj.y + obj.size / 2 - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 200) {
+          const avoidX = dx / dist;
+          const avoidY = dy / dist;
+          obj.vx += avoidX * 1.0;
+          obj.vy += avoidY * 1.0;
+        }
+
+        obj.vx *= 0.99;
+        obj.vy *= 0.99;
+
+        obj.x += obj.vx;
+        obj.y += obj.vy;
+
+        if (obj.x < 0 || obj.x > windowWidth - obj.size) obj.vx *= -1;
+        if (obj.y < 0 || obj.y > windowHeight - obj.size) obj.vy *= -1;
+
+        obj.x = Math.max(0, Math.min(windowWidth - obj.size, obj.x));
+        obj.y = Math.max(0, Math.min(windowHeight - obj.size, obj.y));
+
+        obj.el.style.left = obj.x + 'px';
+        obj.el.style.top = obj.y + 'px';
+      });
+
+      updateAudioByDistance();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+
+</body>
+</html>
