@@ -140,13 +140,14 @@
     }
 
     animate();
-  </script>
-// 이미지 복제: 기존 이미지들을 한 번 더 복제해서 화면에 붙임
+    // 이미지 복제: 기존 이미지들을 한 번 더 복제해서 화면에 붙임
 const container = document.body;
 mediaElements.forEach(media => {
   if (media.tagName === 'img') {
     const clone = media.cloneNode(true);
     container.appendChild(clone);
+  </script>
+
   }
 });
 
