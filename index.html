@@ -51,124 +51,118 @@
   <!-- 영상 2개 -->
   <video src="video3.mp4" class="float-media" autoplay loop muted></video>
 
-  <script>
-    const mediaElements = document.querySelectorAll('.float-media');
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    const floatObjects = [];
+<script>
+  const mediaElements = document.querySelectorAll('.float-media');
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  const floatObjects = [];
 
-    let mouseX = -9999, mouseY = -9999;
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    });
+  let mouseX = -9999, mouseY = -9999;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
 
-    // 초기 위치 및 속도 설정
-    mediaElements.forEach(media => {
-      const isVideo = media.tagName === 'VIDEO';
-      const size = isVideo ? 400 : 200;
+  // 이미지 복제 + 랜덤 위치 부여
+  mediaElements.forEach(media => {
+    const isVideo = media.tagName === 'VIDEO';
+    const size = isVideo ? 400 : 200;
 
-      const x = Math.random() * (windowWidth - size);
-      const y = Math.random() * (windowHeight - size);
-      const vx = (Math.random() - 0.5) * 1.5;
-      const vy = (Math.random() - 0.5) * 1.5;
-
-      media.style.left = x + 'px';
-      media.style.top = y + 'px';
-
-      floatObjects.push({ el: media, x, y, vx, vy, size, isVideo });
-    });
-
-    // 🎧 마우스 거리 따라 볼륨 조절 + 자동 재생
-    function updateAudioByDistance() {
-      const maxDistance = 400;
-      floatObjects.forEach(obj => {
-        if (!obj.isVideo) return;
-
-        const centerX = obj.x + obj.size / 2;
-        const centerY = obj.y + obj.size / 2;
-        const dx = centerX - mouseX;
-        const dy = centerY - mouseY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        const video = obj.el;
-        const volume = Math.max(0, 1 - (dist / maxDistance));
-
-        video.volume = volume;
-
-        if (volume > 0) {
-          video.muted = false;
-          if (video.paused) video.play(); // 소리 때문에 멈춘 영상 다시 재생
-        } else {
-          video.muted = true;
-        }
-      });
-    }
-
-    // 🌀 떠다니고 회피하는 애니메이션
-    function animate() {
-      floatObjects.forEach(obj => {
-        const dx = obj.x + obj.size / 2 - mouseX;
-        const dy = obj.y + obj.size / 2 - mouseY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 200) {
-          const avoidX = dx / dist;
-          const avoidY = dy / dist;
-          obj.vx += avoidX * 1.0;
-          obj.vy += avoidY * 1.0;
-        }
-
-        obj.vx *= 0.99;
-        obj.vy *= 0.99;
-
-        obj.x += obj.vx;
-        obj.y += obj.vy;
-
-        if (obj.x < 0 || obj.x > windowWidth - obj.size) obj.vx *= -1;
-        if (obj.y < 0 || obj.y > windowHeight - obj.size) obj.vy *= -1;
-
-        obj.x = Math.max(0, Math.min(windowWidth - obj.size, obj.x));
-        obj.y = Math.max(0, Math.min(windowHeight - obj.size, obj.y));
-
-        obj.el.style.left = obj.x + 'px';
-        obj.el.style.top = obj.y + 'px';
-      });
-
-      updateAudioByDistance();
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-    
- // 이미지 복제 후 랜덤 위치 부여
-mediaElements.forEach(media => {
-  if (media.tagName === 'img') {
-    const clone = media.cloneNode(true);
-    document.body.appendChild(clone);
-
-    const size = 200; // 이미지 크기
     const x = Math.random() * (windowWidth - size);
     const y = Math.random() * (windowHeight - size);
     const vx = (Math.random() - 0.5) * 1.5;
     const vy = (Math.random() - 0.5) * 1.5;
 
-    clone.style.left = x + 'px';
-    clone.style.top = y + 'px';
+    media.style.left = x + 'px';
+    media.style.top = y + 'px';
 
-    floatObjects.push({
-      el: clone,
-      x,
-      y,
-      vx,
-      vy,
-      size,
-      isVideo: false
+    floatObjects.push({ el: media, x, y, vx, vy, size, isVideo });
+
+    // 👇 복제는 이미지일 때만
+    if (media.tagName === 'IMG') {
+      const clone = media.cloneNode(true);
+      document.body.appendChild(clone);
+
+      const cx = Math.random() * (windowWidth - size);
+      const cy = Math.random() * (windowHeight - size);
+      const cvx = (Math.random() - 0.5) * 1.5;
+      const cvy = (Math.random() - 0.5) * 1.5;
+
+      clone.style.left = cx + 'px';
+      clone.style.top = cy + 'px';
+
+      floatObjects.push({
+        el: clone,
+        x: cx,
+        y: cy,
+        vx: cvx,
+        vy: cvy,
+        size,
+        isVideo: false
+      });
+    }
+  });
+
+  function updateAudioByDistance() {
+    const maxDistance = 400;
+    floatObjects.forEach(obj => {
+      if (!obj.isVideo) return;
+
+      const centerX = obj.x + obj.size / 2;
+      const centerY = obj.y + obj.size / 2;
+      const dx = centerX - mouseX;
+      const dy = centerY - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      const video = obj.el;
+      const volume = Math.max(0, 1 - (dist / maxDistance));
+      video.volume = volume;
+
+      if (volume > 0) {
+        video.muted = false;
+        if (video.paused) video.play();
+      } else {
+        video.muted = true;
+      }
     });
   }
-});
 
-  </script>
+  function animate() {
+    floatObjects.forEach(obj => {
+      const dx = obj.x + obj.size / 2 - mouseX;
+      const dy = obj.y + obj.size / 2 - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 200) {
+        const avoidX = dx / dist;
+        const avoidY = dy / dist;
+        obj.vx += avoidX * 1.0;
+        obj.vy += avoidY * 1.0;
+      }
+
+      obj.vx *= 0.99;
+      obj.vy *= 0.99;
+
+      obj.x += obj.vx;
+      obj.y += obj.vy;
+
+      if (obj.x < 0 || obj.x > windowWidth - obj.size) obj.vx *= -1;
+      if (obj.y < 0 || obj.y > windowHeight - obj.size) obj.vy *= -1;
+
+      obj.x = Math.max(0, Math.min(windowWidth - obj.size, obj.x));
+      obj.y = Math.max(0, Math.min(windowHeight - obj.size, obj.y));
+
+      obj.el.style.left = obj.x + 'px';
+      obj.el.style.top = obj.y + 'px';
+    });
+
+    updateAudioByDistance();
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+
 
   }
 });
