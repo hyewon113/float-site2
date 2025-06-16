@@ -140,12 +140,34 @@
     }
 
     animate();
-    // 이미지 복제: 기존 이미지들을 한 번 더 복제해서 화면에 붙임
-const container = document.body;
+    
+ // 이미지 복제 후 랜덤 위치 부여
 mediaElements.forEach(media => {
-  if (media.tagName === 'img') {
+  if (media.tagName === 'IMG') {
     const clone = media.cloneNode(true);
-    container.appendChild(clone);
+    document.body.appendChild(clone);
+
+    const size = 200; // 이미지 크기
+    const x = Math.random() * (windowWidth - size);
+    const y = Math.random() * (windowHeight - size);
+    const vx = (Math.random() - 0.5) * 1.5;
+    const vy = (Math.random() - 0.5) * 1.5;
+
+    clone.style.left = x + 'px';
+    clone.style.top = y + 'px';
+
+    floatObjects.push({
+      el: clone,
+      x,
+      y,
+      vx,
+      vy,
+      size,
+      isVideo: false
+    });
+  }
+});
+
   </script>
 
   }
